@@ -77,9 +77,9 @@ CURSOR_POSITION = 0
 CURSOR_LETTER = 0
 ROUND = 1
 
-BLOCKERS_POSITION = 1100
-ENEMY_DEFAULT_POSITION = 250  # Initial value for a new game
-ENEMY_MOVE_DOWN = 35
+BLOCKERS_POSITION = int(height*0.75)
+ENEMY_DEFAULT_POSITION = int(height*0.1)  # Initial value for a new game
+ENEMY_MOVE_DOWN = int(height*0.027)
 
 try:
     controller_keys_path = resource_path('controller-keys.json')
@@ -111,17 +111,17 @@ class Ship(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         self.image = IMAGES['ship']
-        self.rect = self.image.get_rect(topleft=(375, 1540))
+        self.rect = self.image.get_rect(topleft=(int(0.1*width), int(0.9*height)))
         self.speed = 8
 
     def update(self, keys, buttons, *args):
-        if keys[pygame.K_LEFT] and self.rect.x > 100:
+        if keys[pygame.K_LEFT] and self.rect.x > int(0.1*width):
             self.rect.x -= self.speed
-        if keys[pygame.K_RIGHT] and self.rect.x < 1300:
+        if keys[pygame.K_RIGHT] and self.rect.x < int(0.9*width):
             self.rect.x += self.speed
-        if buttons['left_arrow'] and self.rect.x > 100:
+        if buttons['left_arrow'] and self.rect.x > int(0.1*width):
             self.rect.x -= self.speed
-        if buttons['right_arrow'] and self.rect.x < 1300:
+        if buttons['right_arrow'] and self.rect.x < int(0.9*width):
             self.rect.x += self.speed
         game.screen.blit(self.image, self.rect)
 
@@ -416,6 +416,9 @@ class Text(object):
 
     def move(self, position):
         self.rect = self.surface.get_rect(topleft=(position, self.ypos))
+    def center(self):
+        position = int((width-self.surface.get_width())/2)
+        self.rect = self.surface.get_rect(topleft=(position, self.ypos))
 
 class NameInput():
     def __init__(self, screen):
@@ -499,25 +502,31 @@ class SpaceInvaders(object):
         self.gameOver = False
         # Counter for enemy starting position (increased each new round)
         self.enemyPosition = ENEMY_DEFAULT_POSITION
-        self.titleText = Text(FONT, 65, 'Course Invaders', YELLOW, 380, 1000)
-        self.titleText2 = Text(FONT, 30, 'Collect as many registrations as you can while', WHITE,
-                               260, 1100)
-        self.titleText3 = Text(FONT, 30, 'avoiding the aliens\' cancellations', WHITE,
-        380, 1140)
 
-        self.gameOverText = Text(FONT, 50, 'Game Over', RED, 535, 1250)
-        self.finalScoreText = Text(FONT, 50, 'Registrations:', WHITE, 420, 1310)
-        self.nextRoundText = Text(FONT, 50, 'Next Round', WHITE, 240, 1250)
-        self.enemy1Text = Text(FONT, 25, '=    10 pts', GREEN, 680, 1250)
-        self.enemy2Text = Text(FONT, 25, '=    20 pts', BLUE, 680, 1300)
-        self.enemy3Text = Text(FONT, 25, '=    30 pts', PURPLE, 680, 1350)
-        self.enemy4Text = Text(FONT, 25, '=    ?????', RED, 680, 1400)
-        self.scoreText = Text(FONT, 35, 'Registrations', WHITE, 250, 600)
-        self.livesText = Text(FONT, 35, 'Lives: ', WHITE, 940, 600)
+        self.titleText = Text(FONT, int(height*0.1), 'Pi INVADERS', YELLOW, 380, int(height*0.3))
+        self.titleText.center()
+        self.titleText2 = Text(FONT, int(height*0.025), 'Collect as many points as you can while', WHITE, 260, int(height*0.45))
+        self.titleText2.center()
+        self.titleText3 = Text(FONT, int(height*0.025), 'avoiding the aliens\' lasers', WHITE, 380, int(height*0.49))
+        self.titleText3.center()
 
-        self.life1 = Life(1100, 600)
-        self.life2 = Life(1150, 600)
-        self.life3 = Life(1200, 600)
+        self.gameOverText = Text(FONT, int(height*0.1), 'Game Over', RED, 535, int(height*0.49))
+        self.gameOverText.center()
+        self.finalScoreText = Text(FONT, int(height*0.1), 'Points:', WHITE, 420, int(height*0.45))
+        self.finalScoreText.center()
+        self.nextRoundText = Text(FONT, int(height*0.1), 'Next Round', WHITE, 240, int(height*0.49))
+        self.nextRoundText.center()
+        self.enemy1Text = Text(FONT, int(height*0.03), '=    10 pts', GREEN, int(width*0.5), int(height*0.6))
+        self.enemy2Text = Text(FONT, int(height*0.03), '=    20 pts', BLUE, int(width*0.5), int(height*0.66))
+        self.enemy3Text = Text(FONT, int(height*0.03), '=    30 pts', PURPLE, int(width*0.5), int(height*0.72))
+        self.enemy4Text = Text(FONT, int(height*0.03), '=    ?????', RED, int(width*0.5), int(height*0.78))
+
+        self.scoreText = Text(FONT, int(height*0.03), 'Points:', WHITE, int(width*0.1), int(height*0.05))
+        self.livesText = Text(FONT, int(height*0.03), 'Lives: ', WHITE, int(width*0.7), int(height*0.05))
+
+        self.life1 = Life(int(width*0.8), int(height*0.05))
+        self.life2 = Life(int(width*0.83), int(height*0.05))
+        self.life3 = Life(int(width*0.86), int(height*0.05))
         self.livesGroup = pygame.sprite.Group(self.life1, self.life2, self.life3)
 
     def reset(self, score):
@@ -556,7 +565,8 @@ class SpaceInvaders(object):
         for row in range(4):
             for column in range(9):
                 blocker = Blocker(10, YELLOW, row, column)
-                blocker.rect.x = 300 + (200 * number) + (column * blocker.width)
+                blwidth = int((0.9*width)/9)
+                blocker.rect.x = int(0.05*width) + (blwidth * number) + (column * blocker.width)
                 blocker.rect.y = BLOCKERS_POSITION + (row * blocker.height)
                 blockerGroup.add(blocker)
         return blockerGroup
@@ -698,19 +708,21 @@ class SpaceInvaders(object):
         return score
 
     def create_main_menu(self):
+        enem = int(40*(height/800))
         self.enemy1 = IMAGES['enemy3_1']
-        self.enemy1 = pygame.transform.scale(self.enemy1, (40, 40))
+        self.enemy1 = pygame.transform.scale(self.enemy1, (enem, enem))
         self.enemy2 = IMAGES['enemy2_2']
-        self.enemy2 = pygame.transform.scale(self.enemy2, (40, 40))
+        self.enemy2 = pygame.transform.scale(self.enemy2, (enem, enem))
         self.enemy3 = IMAGES['enemy1_2']
-        self.enemy3 = pygame.transform.scale(self.enemy3, (40, 40))
+        self.enemy3 = pygame.transform.scale(self.enemy3, (enem, enem))
         self.enemy4 = IMAGES['mystery']
-        self.enemy4 = pygame.transform.scale(self.enemy4, (80, 40))
-        self.screen.blit(self.enemy1, (600, 1250))
-        self.screen.blit(self.enemy2, (600, 1300))
-        self.screen.blit(self.enemy3, (600, 1350))
-        self.screen.blit(self.enemy4, (575, 1400))
-        self.startText = Text(FONT, 40, "Press X to start the game", WHITE, 375, 1600)
+        self.enemy4 = pygame.transform.scale(self.enemy4, (2*enem, enem))
+        self.screen.blit(self.enemy1, (int(width*0.44), int(height*0.6)))
+        self.screen.blit(self.enemy2, (int(width*0.44), int(height*0.66)))
+        self.screen.blit(self.enemy3, (int(width*0.44), int(height*0.72)))
+        self.screen.blit(self.enemy4, (int(width*0.425), int(height*0.78)))
+        self.startText = Text(FONT, int(height*0.03), "Press X to start the game", WHITE, 375, int(height*0.54))
+        self.startText.center()
         self.startText.draw(self.screen)
 
     def check_collisions(self):
@@ -838,8 +850,7 @@ class SpaceInvaders(object):
                     currentTime = pygame.time.get_ticks()
                     if currentTime - self.gameTimer < 3000:
                         self.screen.blit(self.background, (0, 0))
-                        self.scoreText2 = Text(FONT, 35, str(self.score),
-                                               YELLOW, 600, 600)
+                        self.scoreText2 = Text(FONT, int(height*0.03), str(self.score), YELLOW, int(width*0.25), int(height*0.05))
                         self.scoreText.draw(self.screen)
                         self.scoreText2.draw(self.screen)
                         self.nextRoundText.draw(self.screen)
@@ -856,8 +867,7 @@ class SpaceInvaders(object):
                     self.play_main_music(currentTime)
                     self.screen.blit(self.background, (0, 0))
                     self.allBlockers.update(self.screen)
-                    self.scoreText2 = Text(FONT, 35, str(self.score), YELLOW,
-                                           600, 600)
+                    self.scoreText2 = Text(FONT, int(height*0.03), str(self.score), YELLOW, int(width*0.25), int(height*0.05))
                     self.scoreText.draw(self.screen)
                     self.scoreText2.draw(self.screen)
                     self.livesText.draw(self.screen)

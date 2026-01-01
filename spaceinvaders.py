@@ -60,6 +60,8 @@ BLUE = (80, 255, 239)
 PURPLE = (203, 0, 255)
 RED = (237, 28, 36)
 
+global HighScore
+
 
 
 FONT = os.path.join(FONT_PATH, 'space_invaders.ttf')
@@ -98,7 +100,7 @@ except Exception as e:
     }
 # 0: Left analog horizonal, 1: Left Analog Vertical, 2: Right Analog Horizontal
 # 3: Right Analog Vertical 4: Left Trigger, 5: Right Trigger
-analog_keys = {0:0, 1:0, 2:0, 3:0, 4:-1, 5: -1 }
+analog_keys = {0: 0, 1: 0, 2: 0, 3: 0, 4: -1, 5: -1}
 
 pygame.joystick.init()
 joysticks = []
@@ -139,7 +141,7 @@ class Bullet(pygame.sprite.Sprite):
     def update(self, keys, *args):
         game.screen.blit(self.image, self.rect)
         self.rect.y += self.speed * self.direction
-        if self.rect.y < 700 or self.rect.y > 1600:
+        if self.rect.y < 50 or self.rect.y > 1600:
             self.kill()
 
 class Leaderboard():
@@ -149,9 +151,9 @@ class Leaderboard():
 
     def incrementScore(self):
         self.total += 1
- 
+
     def storeHighScore(self, name):
-        leaderboard
+        self.leaderboard
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, row, column):
@@ -424,7 +426,7 @@ class NameInput():
     def __init__(self, screen):
         self.screen = screen
         ###
-        ### move the ref to the current player and the cursor position to a global variable that isn't reset by the main game loop. 
+        ### move the ref to the current player and the cursor position to a global variable that isn't reset by the main game loop.
         ###
         global PLAYER_NAME
         global CURSOR_POSITION
@@ -454,25 +456,25 @@ class NameInput():
         if button == button_keys['right_arrow']:
             if CURSOR_POSITION < 2:
                 CURSOR_POSITION += 1
-            else: 
+            else:
                 CURSOR_POSITION = 0
             CURSOR_LETTER = alph.index(PLAYER_NAME[CURSOR_POSITION])
         if button == button_keys['left_arrow']:
             if CURSOR_POSITION > 0:
                 CURSOR_POSITION -= 1
-            else: 
+            else:
                 CURSOR_POSITION = 2
             CURSOR_LETTER = alph.index(PLAYER_NAME[CURSOR_POSITION])
         if button == button_keys['down_arrow']:
             if CURSOR_LETTER >= 0:
                 CURSOR_LETTER -= 1
-            else: 
+            else:
                 CURSOR_LETTER = 25
             PLAYER_NAME[CURSOR_POSITION] = alph[CURSOR_LETTER]
         if button == button_keys['up_arrow']:
             if CURSOR_LETTER < 27:
                 CURSOR_LETTER += 1
-            else: 
+            else:
                 CURSOR_LETTER = 0
 
         if CURSOR_POSITION == 0:
@@ -481,8 +483,6 @@ class NameInput():
             self.underline.move(675)
         if CURSOR_POSITION == 2:
             self.underline.move(725)
-
-
 
 
 class SpaceInvaders(object):
@@ -559,7 +559,6 @@ class SpaceInvaders(object):
             buttons[key] = False
         return buttons
 
-
     def make_blockers(self, number):
         blockerGroup = pygame.sprite.Group()
         for row in range(4):
@@ -611,8 +610,6 @@ class SpaceInvaders(object):
             if evt.button == button_keys['circle']:
                 return True
 
-
-
     def check_input(self):
         self.keys = pygame.key.get_pressed()
         for e in pygame.event.get():
@@ -622,7 +619,7 @@ class SpaceInvaders(object):
                 if e.key == pygame.K_SPACE:
                     if len(self.bullets) <= 15 and self.shipAlive:
                         if self.score < 1000:
-                            bullet = Bullet(self.player.rect.x + 75,
+                            bullet = Bullet(self.player.rect.x + 22,
                                             self.player.rect.y + 5, -1,
                                             15, 'laser', 'center')
                             self.bullets.add(bullet)
@@ -664,6 +661,14 @@ class SpaceInvaders(object):
                     for btnKey in button_keys.keys():
                         if e.button == button_keys[btnKey]:
                             self.buttons[btnKey] = True
+            if e.type == pygame.JOYAXISMOTION:
+                if e.axis == 0 and int(e.value) == 1:
+                    self.buttons['left_arrow'] = True
+                if e.axis == 0 and int(e.value) == -1:
+                    self.buttons['right_arrow'] = True
+                if e.axis == 0 and int(e.value) == 0:
+                    self.buttons['left_arrow'] = False
+                    self.buttons['right_arrow'] = False
             if e.type == pygame.JOYBUTTONUP:
                 if e.button == button_keys['x']:
                     1 + 1
@@ -672,7 +677,6 @@ class SpaceInvaders(object):
                     for btnKey in button_keys.keys():
                         if e.button == button_keys[btnKey]:
                             self.buttons[btnKey] = False
-
 
     def make_enemies(self):
         enemies = EnemiesGroup(10, 5)
@@ -783,6 +787,7 @@ class SpaceInvaders(object):
 
     def create_game_over(self, currentTime):
         global ROUND
+        global HighScore
         ROUND = 0
         self.screen.blit(self.background, (0, 0))
         passed = currentTime - self.timer
@@ -796,15 +801,19 @@ class SpaceInvaders(object):
             self.screen.blit(self.background, (0, 0))
         elif 3000 < passed < 6750:
             self.gameOverText.draw(self.screen)
-            self.finalScoreText2 = Text(FONT, 50, str(self.score), YELLOW, 950, 1310)
+            self.finalScoreText2 = Text(FONT, 50, str(self.score), YELLOW, 450, 10)
             self.finalScoreText.draw(self.screen)
             self.finalScoreText2.draw(self.screen)
         elif passed > 7000:
             self.finalScoreText.draw(self.screen)
             self.finalScoreText2.draw(self.screen)
-            self.goBackText = Text(FONT, 50, "Press circle to reset the game", WHITE, 200, 1450)
-            self.goBackText.draw(self.screen)
+            if self.score > HighScore:
+                HighScore = self.score
+                self.finalScoreText2 = Text(FONT, 50, "New High Score :" + str(self.score), PURPLE, 450, 10)
+                self.finalScoreText2.draw(self.screen)
 
+            self.goBackText = Text(FONT, 50, "Press circle to reset the game", WHITE, 100, 450)
+            self.goBackText.draw(self.screen)
 
         # with open(os.path.join("leaderboard.json"), 'r+') as file:
         #     leaderboard = json.load(file)
@@ -817,9 +826,11 @@ class SpaceInvaders(object):
                 self.mainScreen = True
             # elif e.type == pygame.JOYBUTTONUP:
             #     input.handle_input(e.button)
- 
+
     def main(self):
         global ROUND
+        global HighScore
+        HighScore = 0
         while True:
             if self.mainScreen:
                 self.screen.blit(self.background, (0, 0))
@@ -878,7 +889,6 @@ class SpaceInvaders(object):
                     self.check_collisions()
                     self.create_new_ship(self.makeNewShip, currentTime)
                     self.make_enemies_shoot()
-
             elif self.gameOver:
                 currentTime = pygame.time.get_ticks()
                 # Reset enemy starting position
@@ -890,5 +900,6 @@ class SpaceInvaders(object):
 
 
 if __name__ == '__main__':
+    HighScore = 0
     game = SpaceInvaders()
     game.main()

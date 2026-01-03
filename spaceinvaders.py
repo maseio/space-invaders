@@ -199,9 +199,9 @@ class EnemiesGroup(pygame.sprite.Group):
         self.rightAddMove = 0
         self.moveTime = 85 - (10 * ROUND)
         self.direction = 1
-        self.rightMoves = 30
-        self.leftMoves = 30
-        self.moveNumber = 15
+        self.rightMoves = 60
+        self.leftMoves = 60
+        self.moveNumber = 0
         self.timer = pygame.time.get_ticks()
         self.bottom = game.enemyPosition + ((rows - 1) * 45) + 35
         self._aliveColumns = list(range(columns))
@@ -217,8 +217,8 @@ class EnemiesGroup(pygame.sprite.Group):
                 max_move = self.leftMoves + self.leftAddMove
 
             if self.moveNumber >= max_move:
-                self.leftMoves = 30 + self.rightAddMove
-                self.rightMoves = 30 + self.leftAddMove
+                self.leftMoves = 60 + self.rightAddMove
+                self.rightMoves = 60 + self.leftAddMove
                 self.direction *= -1
                 self.moveNumber = 0
                 self.bottom = 0
@@ -303,7 +303,7 @@ class Mystery(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image = IMAGES['mystery']
         self.image = pygame.transform.scale(self.image, (75, 35))
-        self.rect = self.image.get_rect(topleft=(-80, 800))
+        self.rect = self.image.get_rect(topleft=(-80, int(height*0.1)))
         self.row = 5
         self.moveTime = 25000
         self.direction = 1
@@ -683,7 +683,7 @@ class SpaceInvaders(object):
         for row in range(5):
             for column in range(10):
                 enemy = Enemy(row, column)
-                enemy.rect.x = 300 + (column * 80)
+                enemy.rect.x = int(width*0.1) + (column * 80)
                 enemy.rect.y = self.enemyPosition + (row * 45)
                 enemies.add(enemy)
 
@@ -766,7 +766,7 @@ class SpaceInvaders(object):
             self.shipTimer = pygame.time.get_ticks()
             self.shipAlive = False
 
-        if self.enemies.bottom >= 1540:
+        if self.enemies.bottom >= int(height*0.8):
             pygame.sprite.groupcollide(self.enemies, self.playerGroup, True, True)
             if not self.player.alive() or self.enemies.bottom >= 1600:
                 self.gameOver = True

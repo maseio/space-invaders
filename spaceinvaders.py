@@ -1,3 +1,5 @@
+import random
+
 import pygame
 import sys
 import os
@@ -127,7 +129,6 @@ class Ship(pygame.sprite.Sprite):
             self.rect.x += self.speed
         game.screen.blit(self.image, self.rect)
 
-
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, xpos, ypos, direction, speed, filename, side):
         pygame.sprite.Sprite.__init__(self)
@@ -186,7 +187,6 @@ class Enemy(pygame.sprite.Sprite):
                       images[self.row])
         self.images.append(pygame.transform.scale(img1, (40, 35)))
         self.images.append(pygame.transform.scale(img2, (40, 35)))
-
 
 class EnemiesGroup(pygame.sprite.Group):
     def __init__(self, columns, rows):
@@ -281,7 +281,6 @@ class EnemiesGroup(pygame.sprite.Group):
                 self.leftAddMove += 5
                 is_column_dead = self.is_column_dead(self._leftAliveColumn)
 
-
 class Blocker(pygame.sprite.Sprite):
     def __init__(self, size, color, row, column):
         pygame.sprite.Sprite.__init__(self)
@@ -296,7 +295,6 @@ class Blocker(pygame.sprite.Sprite):
 
     def update(self, keys, *args):
         game.screen.blit(self.image, self.rect)
-
 
 class Mystery(pygame.sprite.Sprite):
     def __init__(self):
@@ -316,19 +314,19 @@ class Mystery(pygame.sprite.Sprite):
         resetTimer = False
         passed = currentTime - self.timer
         if passed > self.moveTime:
-            if (self.rect.x < 0 or self.rect.x > 800) and self.playSound:
+            if (self.rect.x < 0 or self.rect.x > width) and self.playSound:
                 self.mysteryEntered.play()
                 self.playSound = False
-            if self.rect.x < 840 and self.direction == 1:
+            if self.rect.x < width + 30 and self.direction == 1:
                 self.mysteryEntered.fadeout(4000)
-                self.rect.x += 2
+                self.rect.x += random.randint(2, 6)
                 game.screen.blit(self.image, self.rect)
             if self.rect.x > -100 and self.direction == -1:
                 self.mysteryEntered.fadeout(4000)
-                self.rect.x -= 2
+                self.rect.x -= random.randint(2, 6)
                 game.screen.blit(self.image, self.rect)
 
-        if self.rect.x > 830:
+        if self.rect.x > width + 30:
             self.playSound = True
             self.direction = -1
             resetTimer = True
@@ -338,7 +336,6 @@ class Mystery(pygame.sprite.Sprite):
             resetTimer = True
         if passed > self.moveTime and resetTimer:
             self.timer = currentTime
-
 
 class EnemyExplosion(pygame.sprite.Sprite):
     def __init__(self, enemy, *groups):
@@ -362,7 +359,6 @@ class EnemyExplosion(pygame.sprite.Sprite):
         elif 400 < passed:
             self.kill()
 
-
 class MysteryExplosion(pygame.sprite.Sprite):
     def __init__(self, mystery, score, *groups):
         super(MysteryExplosion, self).__init__(*groups)
@@ -376,7 +372,6 @@ class MysteryExplosion(pygame.sprite.Sprite):
             self.text.draw(game.screen)
         elif 600 < passed:
             self.kill()
-
 
 class ShipExplosion(pygame.sprite.Sprite):
     def __init__(self, ship, *groups):
@@ -392,7 +387,6 @@ class ShipExplosion(pygame.sprite.Sprite):
         elif 900 < passed:
             self.kill()
 
-
 class Life(pygame.sprite.Sprite):
     def __init__(self, xpos, ypos):
         pygame.sprite.Sprite.__init__(self)
@@ -402,7 +396,6 @@ class Life(pygame.sprite.Sprite):
 
     def update(self, *args):
         game.screen.blit(self.image, self.rect)
-
 
 class Text(object):
     def __init__(self, textFont, size, message, color, xpos, ypos):
@@ -483,7 +476,6 @@ class NameInput():
             self.underline.move(675)
         if CURSOR_POSITION == 2:
             self.underline.move(725)
-
 
 class SpaceInvaders(object):
     def __init__(self):

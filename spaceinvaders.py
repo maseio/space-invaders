@@ -556,10 +556,9 @@ class SpaceInvaders(object):
     def make_blockers(self, number):
         blockerGroup = pygame.sprite.Group()
         for row in range(4):
-            for column in range(9):
-                blocker = Blocker(10, YELLOW, row, column)
-                blwidth = int((0.9*width)/9)
-                blocker.rect.x = int(0.05*width) + (blwidth * number) + (column * blocker.width)
+            for column in range(10):
+                blocker = Blocker(int(width*0.01), YELLOW, row, column)
+                blocker.rect.x = int(width*0.15) + (int(width*0.2) * number) + (column * blocker.width)
                 blocker.rect.y = BLOCKERS_POSITION + (row * blocker.height)
                 blockerGroup.add(blocker)
         return blockerGroup
@@ -741,7 +740,7 @@ class SpaceInvaders(object):
 
         if self.enemies.bottom >= int(height*0.8):
             pygame.sprite.groupcollide(self.enemies, self.playerGroup, True, True)
-            if not self.player.alive() or self.enemies.bottom >= 1600:
+            if not self.player.alive() or self.enemies.bottom >= int(height*0.9):
                 self.gameOver = True
                 self.startGame = False
 

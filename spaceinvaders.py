@@ -5,6 +5,7 @@ import json
 from os.path import abspath, dirname
 from random import choice
 
+# os.environ['SDL_VIDEODRIVER'] = 'kmsdrm'
 
 # Define a function to get the correct resource path for both development and PyInstaller environments
 def resource_path(relative_path):
@@ -77,8 +78,7 @@ pygame.joystick.init()
 joysticks = []
 for i in range(pygame.joystick.get_count()):
     joysticks.append(pygame.joystick.Joystick(i))
-for joystick in joysticks:
-    joystick.init()
+
 
 
 class Ship(pygame.sprite.Sprite):
@@ -569,56 +569,43 @@ class SpaceInvaders(object):
         for e in pygame.event.get():
             if self.should_exit(e):
                 sys.exit()
-            if e.type == pygame.KEYDOWN:
-                if e.key == pygame.K_SPACE:
-                    if len(self.bullets) <= 15 and self.shipAlive:
-                        if self.score < 1000:
-                            bullet = Bullet(self.player.rect.x + 20,
+            if (e.type == pygame.KEYDOWN and e.key == pygame.K_SPACE) or (e.type == pygame.JOYBUTTONDOWN and e.button == button_keys['x']):
+                if len(self.bullets) <= 15 and self.shipAlive:
+                    if self.score < 1000:
+                        bullet = Bullet(self.player.rect.x + 22,
+                                        self.player.rect.y + 5, -1,
+                                        15, 'laser', 'center')
+                        self.bullets.add(bullet)
+                        self.allSprites.add(self.bullets)
+                        self.sounds['shoot'].play()
+                    else:
+                        leftbullet = Bullet(self.player.rect.x + 8,
                                             self.player.rect.y + 5, -1,
-                                            15, 'laser', 'center')
-                            self.bullets.add(bullet)
-                            self.allSprites.add(self.bullets)
-                            self.sounds['shoot'].play()
-                        else:
-                            leftbullet = Bullet(self.player.rect.x + 8,
-                                                self.player.rect.y + 5, -1,
-                                                15, 'laser', 'left')
-                            rightbullet = Bullet(self.player.rect.x + 38,
-                                                 self.player.rect.y + 5, -1,
-                                                 15, 'laser', 'right')
-                            self.bullets.add(leftbullet)
-                            self.bullets.add(rightbullet)
-                            self.allSprites.add(self.bullets)
-                            self.sounds['shoot2'].play()
-            if e.type == pygame.JOYBUTTONDOWN:
-                if e.button == button_keys['x']:
-                    if len(self.bullets) <= 15 and self.shipAlive:
-                        if self.score < 1000:
-                            bullet = Bullet(self.player.rect.x + 75,
-                                            self.player.rect.y + 5, -1,
-                                            15, 'laser', 'center')
-                            self.bullets.add(bullet)
-                            self.allSprites.add(self.bullets)
-                            self.sounds['shoot'].play()
-                        else:
-                            leftbullet = Bullet(self.player.rect.x + 8,
-                                                self.player.rect.y + 5, -1,
-                                                15, 'laser', 'left')
-                            rightbullet = Bullet(self.player.rect.x + 38,
-                                                 self.player.rect.y + 5, -1,
-                                                 15, 'laser', 'right')
-                            self.bullets.add(leftbullet)
-                            self.bullets.add(rightbullet)
-                            self.allSprites.add(self.bullets)
-                            self.sounds['shoot2'].play()
-                else:
+                                            15, 'laser', 'left')
+                        rightbullet = Bullet(self.player.rect.x + 38,
+                                             self.player.rect.y + 5, -1,
+                                             15, 'laser', 'right')
+                        self.bullets.add(leftbullet)
+                        self.bullets.add(rightbullet)
+                        self.allSprites.add(self.bullets)
+                        self.sounds['shoot2'].play()
+            else:
+                if e.type == pygame.JOYBUTTONDOWN:
                     for btnKey in button_keys.keys():
                         if e.button == button_keys[btnKey]:
                             self.buttons[btnKey] = True
+            if e.type == pygame.JOYAXISMOTION:
+                if e.axis == 0 and e.value >0.5:
+                    self.buttons['left_arrow'] = True
+                if e.axis == 0 and e.value  -0.5:
+                    self.buttons['right_arrow'] = True
+                if e.axis == 0 and -0.4 < e.value <0.4:
+                    self.buttons['left_arrow'] = False
+                    self.buttons['right_arrow'] = False
             if e.type == pygame.JOYBUTTONUP:
                 if e.button == button_keys['x']:
                     1 + 1
-                    # do nothing
+                    #do nothing
                 else:
                     for btnKey in button_keys.keys():
                         if e.button == button_keys[btnKey]:

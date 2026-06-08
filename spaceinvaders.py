@@ -35,7 +35,7 @@ RED = (237, 28, 36)
 pygame.init()
 info = pygame.display.Info()
 monitor_size = (info.current_w, info.current_h)
-SCREEN = pygame.display.set_mode((1920, 1080), pygame.SCALED | pygame.FULLSCREEN)
+SCREEN = pygame.display.set_mode((1920, 1080), pygame.FULLSCREEN)
 FONT = os.path.join(FONT_PATH, 'space_invaders.ttf')
 IMG_NAMES = ['ship', 'mystery',
              'enemy1_1', 'enemy1_2',

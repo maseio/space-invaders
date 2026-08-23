@@ -5,7 +5,10 @@ import json
 from os.path import abspath, dirname
 from random import choice
 
-# os.environ['SDL_VIDEODRIVER'] = 'kmsdrm'
+# Must be set BEFORE pygame is imported
+os.environ["SDL_VIDEODRIVER"] = "kmsdrm"
+os.environ["SDL_AUDIODRIVER"] = "alsa"
+os.environ["SDL_KMSDRM_DEVICE_INDEX"] = "0"
 
 # Define a function to get the correct resource path for both development and PyInstaller environments
 def resource_path(relative_path):
@@ -397,7 +400,7 @@ class NameInput():
     def __init__(self, screen):
         self.screen = screen
         ###
-        ### move the ref to the current player and the cursor position to a global variable that isn't reset by the main game loop. 
+        ### move the ref to the current player and the cursor position to a global variable that isn't reset by the main game loop.
         ###
         global PLAYER_NAME
         global CURSOR_POSITION
